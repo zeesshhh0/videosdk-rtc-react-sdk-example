@@ -34,7 +34,6 @@ import { setRelaySinkId } from "../../utils/audioOutputRelay";
 import { Dialog, Popover, Transition } from "@headlessui/react";
 import { createPopper } from "@popperjs/core";
 import { useMeetingAppContext } from "../../MeetingAppContextDef";
-import useMediaStream from "../../hooks/useMediaStream";
 import { toast } from "react-toastify";
 
 const pipToastOptions = {

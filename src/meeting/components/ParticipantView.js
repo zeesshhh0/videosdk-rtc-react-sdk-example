@@ -65,7 +65,7 @@ function ParticipantsViewer({ isPresenting }) {
     ].slice(0, isPresenting ? 6 : 16);
 
     return ids;
-  }, [participants, pinnedParticipants, isPresenting]);
+  }, [participants, pinnedParticipants, isPresenting, localParticipant.id]);
 
   return (
     <ActiveSpeakerAwareGrid

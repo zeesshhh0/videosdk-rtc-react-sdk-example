@@ -1,7 +1,7 @@
 import { Popover, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Fragment } from 'react'
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import DropMIC from '../icons/DropDown/DropMIC';
 import TestMic from "../icons/DropDown/TestMic"
 import TestMicOff from '../icons/DropDown/TestMicOff';
@@ -59,6 +59,15 @@ export default function DropDown({
     }
   }, [audioTrack]);
 
+  const stopRecording = useCallback(() => {
+    if (mediaRecorder.current.state !== "inactive") {
+      setRecordingProgress(0);
+      setRecordingStatus("stopped recording");
+      clearInterval(intervalRef.current)
+      mediaRecorder.current.stop();
+    }
+  }, []);
+
   useEffect(() => {
     if (didDeviceChange) {
       setDidDeviceChange(false)
@@ -66,7 +75,7 @@ export default function DropDown({
       setRecordingProgress(0)
       setRecordingStatus("inactive")
     }
-  }, [didDeviceChange])
+  }, [didDeviceChange, setDidDeviceChange, stopRecording])
 
   const analyseAudio = (audioTrack) => {
     const audioStream = new MediaStream([audioTrack]);
@@ -154,15 +163,6 @@ export default function DropDown({
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder.current.state != "inactive") {
-      setRecordingProgress(0);
-      setRecordingStatus("stopped recording");
-      clearInterval(intervalRef.current)
-      mediaRecorder.current.stop();
-    }
-  };
-
   return (
     <>
       <Popover className="relative w-full">
@@ -180,7 +180,7 @@ export default function DropDown({
               group inline-flex items-center rounded-md px-1 py-1 w-full text-base font-normal
               ${!isMicrophonePermissionAllowed ? "opacity-50" : ""}`}
               onClick={() => {
-                if (mediaRecorder.current != null && mediaRecorder.current.state == "recording") { stopRecording() }
+                if (mediaRecorder.current != null && mediaRecorder.current.state === "recording") { stopRecording() }
                 setRecordingProgress(0)
                 setRecordingStatus("inactive")
               }}
@@ -242,7 +242,7 @@ export default function DropDown({
                                       } catch (e) {
                                         console.log("Error in changeMic", e);
                                       }
-                                      if (mediaRecorder.current != null && mediaRecorder.current.state == "recording") { stopRecording() }
+                                      if (mediaRecorder.current != null && mediaRecorder.current.state === "recording") { stopRecording() }
                                       setRecordingProgress(0)
                                       setRecordingStatus("inactive")
                                     }}
@@ -273,22 +273,22 @@ export default function DropDown({
                           </div>
 
                           {!isMobile && <div className={`${!isMobile && "w-1/3"} w-full flex justify-center `}>
-                            {recordingStatus == "inactive" && <button className=' p-2 text-xs rounded  bg-gray-450' onClick={startRecording}>
+                            {recordingStatus === "inactive" && <button className=' p-2 text-xs rounded  bg-gray-450' onClick={startRecording}>
                               Record
                             </button>}
 
 
-                            {recordingStatus == "stopped recording" && <button className=' p-2 text-xs rounded  bg-gray-450' onClick={handlePlaying}>
+                            {recordingStatus === "stopped recording" && <button className=' p-2 text-xs rounded  bg-gray-450' onClick={handlePlaying}>
                               Play
                             </button>}
 
-                            {recordingStatus == "recording" && <button className=' p-2 mx-1 py-4 text-xs rounded w-full  bg-gray-450 relative z-0' onClick={stopRecording}>
+                            {recordingStatus === "recording" && <button className=' p-2 mx-1 py-4 text-xs rounded w-full  bg-gray-450 relative z-0' onClick={stopRecording}>
                               <div className=' h-full rounded bg-[#6F767E] absolute top-0 left-0 ' style={{ width: `${recordingProgress}%` }} >
                                 <PauseButton />
                               </div>
                             </button>}
 
-                            {recordingStatus == "playing" && <button className=' p-2 mx-1 py-4 text-xs rounded w-full  bg-gray-450 relative z-0' onClick={handlePlaying}>
+                            {recordingStatus === "playing" && <button className=' p-2 mx-1 py-4 text-xs rounded w-full  bg-gray-450 relative z-0' onClick={handlePlaying}>
                               <div className=' h-full rounded bg-[#6F767E] absolute top-0 left-0 ' style={{ width: `${audioProgress}%` }} >
                                 <PauseButton />
                               </div>

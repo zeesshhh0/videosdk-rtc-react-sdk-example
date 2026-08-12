@@ -14,9 +14,35 @@ export const MeetingAppProvider = ({ children }) => {
   const [sideBarMode, setSideBarMode] = useState(null);
   const [pipMode, setPipMode] = useState(false);
 
-  const useRaisedHandParticipants = () => {
-    const raisedHandsParticipantsRef = useRef();
+  const raisedHandsParticipantsRef = useRef([]);
 
+  useEffect(() => {
+    raisedHandsParticipantsRef.current = raisedHandsParticipants;
+  }, [raisedHandsParticipants]);
+
+  useEffect(() => {
+    const _handleRemoveOld = () => {
+      const raisedHandsParticipants = [...raisedHandsParticipantsRef.current];
+
+      const now = new Date().getTime();
+
+      const persisted = raisedHandsParticipants.filter(({ raisedHandOn }) => {
+        return parseInt(raisedHandOn) + 15000 > parseInt(now);
+      });
+
+      if (raisedHandsParticipants.length !== persisted.length) {
+        setRaisedHandsParticipants(persisted);
+      }
+    };
+
+    const interval = setInterval(_handleRemoveOld, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  const useRaisedHandParticipants = () => {
     const participantRaisedHand = (participantId) => {
       const raisedHandsParticipants = [...raisedHandsParticipantsRef.current];
 
@@ -34,32 +60,6 @@ export const MeetingAppProvider = ({ children }) => {
 
       setRaisedHandsParticipants(raisedHandsParticipants);
     };
-
-    useEffect(() => {
-      raisedHandsParticipantsRef.current = raisedHandsParticipants;
-    }, [raisedHandsParticipants]);
-
-    const _handleRemoveOld = () => {
-      const raisedHandsParticipants = [...raisedHandsParticipantsRef.current];
-
-      const now = new Date().getTime();
-
-      const persisted = raisedHandsParticipants.filter(({ raisedHandOn }) => {
-        return parseInt(raisedHandOn) + 15000 > parseInt(now);
-      });
-
-      if (raisedHandsParticipants.length !== persisted.length) {
-        setRaisedHandsParticipants(persisted);
-      }
-    };
-
-    useEffect(() => {
-      const interval = setInterval(_handleRemoveOld, 1000);
-
-      return () => {
-        clearInterval(interval);
-      };
-    }, []);
 
     return { participantRaisedHand };
   };

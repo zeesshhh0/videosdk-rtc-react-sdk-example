@@ -12,7 +12,6 @@ import SpeakerIcon from "../icons/SpeakerIcon";
 import { getQualityScore, nameTructed } from "../utils/common";
 import {
   connectTrackToRelay,
-  setRelaySinkId,
   shouldUseAudioRelay,
 } from "../utils/audioOutputRelay";
 import * as ReactDOM from "react-dom";
@@ -251,6 +250,9 @@ const CornerDisplayStats = ({ participantId, isPresenting }) => {
     return () => {
       if (statsIntervalIdRef.current) clearInterval(statsIntervalIdRef.current);
     };
+    // updateStats is re-created on every render; adding it here would restart
+    // the polling interval each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webcamStream, micStream, screenShareStream]);
 
   if (!(webcamStream || micStream || screenShareStream)) {
